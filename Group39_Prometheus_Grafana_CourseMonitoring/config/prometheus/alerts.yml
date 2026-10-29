@@ -1,0 +1,29 @@
+groups:
+  - name: group39-course-api
+    rules:
+      - alert: CourseApiUnavailable
+        expr: up{job="course-api"} == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Course API is unavailable"
+          description: "Prometheus cannot scrape the Flask /metrics endpoint."
+      - alert: CourseApiHighErrorRate
+        expr: |
+          (sum(rate(http_requests_total{job="course-api",status=~"5.."}[1m]))
+           / clamp_min(sum(rate(http_requests_total{job="course-api"}[1m])), 0.001)) > 0.10
+        for: 30s
+        labels:
+          severity: warning
+        annotations:
+          summary: "Course API 5xx rate exceeds 10%"
+      - alert: CourseApiHighP95Latency
+        expr: |
+          histogram_quantile(0.95,
+            sum by (le) (rate(http_request_duration_seconds_bucket{job="course-api"}[1m]))) > 1
+        for: 30s
+        labels:
+          severity: warning
+        annotations:
+          summary: "Course API p95 request latency exceeds one second"

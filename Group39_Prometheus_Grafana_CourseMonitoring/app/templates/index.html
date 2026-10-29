@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PulseCampus | Group 39 Student API</title>
+  <meta name="description" content="Course registration demo instrumented with Prometheus, monitored in Grafana." />
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand"><span class="logo">P<span class="spark">✦</span></span><span>PulseCampus<small>GROUP 39 / DEVOPS</small></span></div>
+    <div class="nav-label">WORKSPACE</div>
+    <a href="#overview" class="nav active"><span>▦</span> Overview</a>
+    <a href="#students" class="nav"><span>♙</span> Students</a>
+    <a href="#enroll" class="nav"><span>▤</span> Enrollments</a>
+    <a href="#testing" class="nav"><span>◈</span> Traffic Lab</a>
+    <div class="nav-label nav-label-second">MONITORING</div>
+    <a class="nav" href="http://localhost:3000/d/group39-course-api/course-registration-application-system-performance" target="_blank" rel="noopener"><span>◉</span> Grafana <span class="external">↗</span></a>
+    <a class="nav" href="http://localhost:9090/targets" target="_blank" rel="noopener"><span>⊞</span> Prometheus <span class="external">↗</span></a>
+    <a class="nav" href="/metrics" target="_blank" rel="noopener"><span>≋</span> Raw metrics <span class="external">↗</span></a>
+    <div class="sidebar-footer"><span class="status-dot"></span> API monitoring enabled<br/><small>Prometheus scrapes every 5 seconds</small></div>
+  </aside>
+  <main class="main">
+    <header class="topbar"><div class="eyebrow">DEVOPS / OBSERVABILITY PROJECT</div><div class="toplinks"><span id="apiState" class="online-pill">● Checking API</span><span class="avatar">39</span></div></header>
+    <section class="heading" id="overview"><div><div class="overline">MANAGEMENT CONSOLE</div><h1>Course registration <em>overview</em></h1><p>Register students, manage courses, and monitor every API request in real time.</p></div><a class="btn btn-primary grafana-btn" href="http://localhost:3000/d/group39-course-api/course-registration-application-system-performance" target="_blank" rel="noopener">View live metrics <span>↗</span></a></section>
+    <div class="metric-grid">
+      <div class="metric-card"><div class="metric-title">REGISTERED STUDENTS <span>♙</span></div><div id="studentCount" class="metric-value">—</div><div class="metric-foot">Unique student profiles</div></div>
+      <div class="metric-card"><div class="metric-title">AVAILABLE COURSES <span>▤</span></div><div id="courseCount" class="metric-value">—</div><div class="metric-foot">Seeded at first startup</div></div>
+      <div class="metric-card"><div class="metric-title">TOTAL ENROLLMENTS <span>↗</span></div><div id="enrollCount" class="metric-value">—</div><div class="metric-foot">Stored in SQLite</div></div>
+      <div class="metric-card"><div class="metric-title">ACTIVE USERS <span>◉</span></div><div id="activeCount" class="metric-value highlight">—</div><div class="metric-foot">Live sessions / Prometheus Gauge</div></div>
+    </div>
+    <div class="content-grid">
+      <section class="panel" id="students"><div class="panel-head"><div><div class="overline">STUDENT DIRECTORY</div><h2>Register a student</h2></div><span class="panel-icon">+</span></div><p class="hint">Create a record to use for course enrollments and active demo sessions.</p><form id="studentForm"><label for="studentName">Full name</label><input id="studentName" type="text" placeholder="e.g. Aditi Sharma" minlength="2" maxlength="80" required/><label for="studentEmail">Email address</label><input id="studentEmail" type="email" placeholder="student@example.com" required/><button class="btn btn-primary full" type="submit">+ Add student</button></form></section>
+      <section class="panel" id="enroll"><div class="panel-head"><div><div class="overline">ACADEMIC RECORDS</div><h2>Enroll in a course</h2></div><span class="panel-icon">▤</span></div><p class="hint">Pick a student and course to create an enrollment with capacity checks.</p><form id="enrollForm"><label for="studentSelect">Student</label><select id="studentSelect" required><option value="">Choose a student</option></select><label for="courseSelect">Course</label><select id="courseSelect" required><option value="">Choose a course</option></select><button class="btn btn-primary full" type="submit">Confirm enrollment ↗</button></form></section>
+    </div>
+    <section class="panel course-section"><div class="section-head"><div><div class="overline">CURRICULUM</div><h2>Course catalogue</h2></div><span class="subtle">Live data from Flask API</span></div><div id="courseList" class="course-grid"><span class="muted">Loading courses...</span></div></section>
+    <section class="panel table-section"><div class="section-head"><div><div class="overline">LATEST ACTIVITY</div><h2>Recent enrollments</h2></div><button class="btn btn-ghost" id="refreshBtn" type="button">↻ Refresh</button></div><div class="table-wrap"><table><thead><tr><th>STUDENT</th><th>COURSE CODE</th><th>REGISTERED</th><th>ACTION</th></tr></thead><tbody id="enrollTable"><tr><td colspan="4" class="muted">Loading...</td></tr></tbody></table></div></section>
+    <section id="testing" class="panel traffic-panel"><div class="section-head"><div><div class="overline">OBSERVABILITY PLAYGROUND</div><h2>Traffic &amp; failure simulation</h2></div><span class="lab-pill">DEMO MODE</span></div><p class="hint">Use these endpoint calls to increase the counters, observe latency, or trigger 503 errors. For sustained load, run the included traffic script.</p><div class="lab-grid"><button type="button" class="lab-button" id="normalBtn"><span class="lab-icon green">✓</span><strong>Normal request</strong><small>GET /api/courses</small></button><button type="button" class="lab-button" id="slowBtn"><span class="lab-icon amber">◷</span><strong>Slow request</strong><small>1200ms simulated latency</small></button><button type="button" class="lab-button" id="errorBtn"><span class="lab-icon red">!</span><strong>Failing request</strong><small>503 HTTP error response</small></button></div><div class="lab-session"><label for="sessionStudent">Gauge demo: active users</label><div class="session-row"><select id="sessionStudent"><option value="">Select a student</option></select><button type="button" class="btn btn-secondary" id="sessionStart">Start session</button><button type="button" class="btn btn-ghost" id="sessionStop" disabled>End session</button></div></div><div id="labLog" class="lab-log" aria-live="polite">Ready to run requests. Results appear here.</div></section>
+    <footer class="footer"><div>Group 39 • DevOps mini project • Flask × Prometheus × Grafana</div><div>Educational monitoring stack · No external API keys required</div></footer>
+  </main>
+</div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body></html>
